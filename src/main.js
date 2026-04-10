@@ -2,20 +2,12 @@ import { calcDimensionScores, scoresToLevels, determineResult } from './engine.j
 import { createQuiz } from './quiz.js'
 import { renderResult } from './result.js'
 import './style.css'
-
-async function loadJSON(path) {
-  const res = await fetch(path)
-  return res.json()
-}
+import questions from '../data/questions.json'
+import dimensions from '../data/dimensions.json'
+import types from '../data/types.json'
+import config from '../data/config.json'
 
 async function init() {
-  const [questions, dimensions, types, config] = await Promise.all([
-    loadJSON(new URL('../data/questions.json', import.meta.url).href),
-    loadJSON(new URL('../data/dimensions.json', import.meta.url).href),
-    loadJSON(new URL('../data/types.json', import.meta.url).href),
-    loadJSON(new URL('../data/config.json', import.meta.url).href),
-  ])
-
   const pages = {
     intro: document.getElementById('page-intro'),
     quiz: document.getElementById('page-quiz'),
@@ -49,4 +41,10 @@ async function init() {
   })
 }
 
-init()
+init().catch((err) => {
+  console.error('Init failed:', err)
+  const note = document.getElementById('page-intro')?.querySelector('.intro-note')
+  if (note) {
+    note.textContent = '页面初始化失败，请刷新重试或联系维护者'
+  }
+})
